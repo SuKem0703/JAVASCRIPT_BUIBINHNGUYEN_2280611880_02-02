@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - Products</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .response {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .response.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .response.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .button-group button {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛍️ API Test - Products Management</h1>
+        
+        <div class="grid">
+            <!-- GET All Products -->
+            <div class="card">
+                <h2>📋 Get All Products</h2>
+                <div class="form-group">
+                    <label>Title (search):</label>
+                    <input type="text" id="getTitle" placeholder="e.g., Hoodie">
+                </div>
+                <div class="form-group">
+                    <label>Min Price:</label>
+                    <input type="number" id="getMinPrice" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Max Price:</label>
+                    <input type="number" id="getMaxPrice" placeholder="1000000">
+                </div>
+                <div class="form-group">
+                    <label>Page:</label>
+                    <input type="number" id="getPage" placeholder="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Limit:</label>
+                    <input type="number" id="getLimit" placeholder="10" value="10">
+                </div>
+                <button onclick="getAllProducts()">Get All</button>
+                <div id="getAllResponse" class="response"></div>
+            </div>
+
+            <!-- GET by ID -->
+            <div class="card">
+                <h2>🔍 Get Product by ID</h2>
+                <div class="form-group">
+                    <label>Product ID:</label>
+                    <input type="text" id="getId" placeholder="e.g., 1">
+                </div>
+                <button onclick="getProductById()">Get by ID</button>
+                <div id="getIdResponse" class="response"></div>
+            </div>
+
+            <!-- GET by Slug -->
+            <div class="card">
+                <h2>🏷️ Get Product by Slug</h2>
+                <div class="form-group">
+                    <label>Product Slug:</label>
+                    <input type="text" id="getSlug" placeholder="e.g., majestic-mountain-graphic-t-shirt">
+                </div>
+                <button onclick="getProductBySlug()">Get by Slug</button>
+                <div id="getSlugResponse" class="response"></div>
+            </div>
+
+            <!-- POST Create Product -->
+            <div class="card">
+                <h2>➕ Create New Product</h2>
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" id="postTitle" placeholder="e.g., Điện thoại Samsung">
+                </div>
+                <div class="form-group">
+                    <label>Price:</label>
+                    <input type="number" id="postPrice" placeholder="e.g., 99">
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="postDescription" placeholder="Product description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Category (JSON):</label>
+                    <textarea id="postCategory" placeholder='{"id": 1, "name": "Clothes"}'></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Images (JSON array):</label>
+                    <textarea id="postImages" placeholder='["https://i.imgur.com/image1.jpeg"]'></textarea>
+                </div>
+                <button onclick="createProduct()">Create</button>
+                <div id="postResponse" class="response"></div>
+            </div>
+
+            <!-- PUT Update Product -->
+            <div class="card">
+                <h2>✏️ Update Product</h2>
+                <div class="form-group">
+                    <label>Product ID:</label>
+                    <input type="text" id="putId" placeholder="e.g., 1">
+                </div>
+                <div class="form-group">
+                    <label>Update Data (JSON):</label>
+                    <textarea id="putData" placeholder='{"title": "New Title", "price": 99}'></textarea>
+                </div>
+                <button onclick="updateProduct()">Update</button>
+                <div id="putResponse" class="response"></div>
+            </div>
+
+            <!-- DELETE Product -->
+            <div class="card">
+                <h2>🗑️ Delete Product</h2>
+                <div class="form-group">
+                    <label>Product ID:</label>
+                    <input type="text" id="deleteId" placeholder="e.g., 1">
+                </div>
+                <button onclick="deleteProduct()">Delete</button>
+                <div id="deleteResponse" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/products';
+
+        async function getAllProducts() {
+            const title = document.getElementById('getTitle').value;
+            const minPrice = document.getElementById('getMinPrice').value;
+            const maxPrice = document.getElementById('getMaxPrice').value;
+            const page = document.getElementById('getPage').value;
+            const limit = document.getElementById('getLimit').value;
+
+            let url = API_URL + '?';
+            if (title) url += `title=${encodeURIComponent(title)}&`;
+            if (minPrice) url += `minPrice=${minPrice}&`;
+            if (maxPrice) url += `maxPrice=${maxPrice}&`;
+            if (page) url += `page=${page}&`;
+            if (limit) url += `limit=${limit}&`;
+            
+            url = url.slice(0, -1);
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayResponse('getAllResponse', data, response.ok);
+            } catch (error) {
+                displayError('getAllResponse', error.message);
+            }
+        }
+
+        async function getProductById() {
+            const id = document.getElementById('getId').value;
+            if (!id) {
+                alert('Please enter Product ID');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const data = await response.json();
+                displayResponse('getIdResponse', data, response.ok);
+            } catch (error) {
+                displayError('getIdResponse', error.message);
+            }
+        }
+
+        async function getProductBySlug() {
+            const slug = document.getElementById('getSlug').value;
+            if (!slug) {
+                alert('Please enter Product Slug');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/slug/${slug}`);
+                const data = await response.json();
+                displayResponse('getSlugResponse', data, response.ok);
+            } catch (error) {
+                displayError('getSlugResponse', error.message);
+            }
+        }
+
+        async function createProduct() {
+            const title = document.getElementById('postTitle').value;
+            const price = document.getElementById('postPrice').value;
+            const description = document.getElementById('postDescription').value;
+            const category = document.getElementById('postCategory').value;
+            const images = document.getElementById('postImages').value;
+
+            if (!title || !price || !description || !category || !images) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const body = {
+                    title,
+                    price: parseFloat(price),
+                    description,
+                    category: JSON.parse(category),
+                    images: JSON.parse(images)
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+                displayResponse('postResponse', data, response.ok);
+            } catch (error) {
+                displayError('postResponse', error.message);
+            }
+        }
+
+        async function updateProduct() {
+            const id = document.getElementById('putId').value;
+            const data = document.getElementById('putData').value;
+
+            if (!id || !data) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const body = JSON.parse(data);
+
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const responseData = await response.json();
+                displayResponse('putResponse', responseData, response.ok);
+            } catch (error) {
+                displayError('putResponse', error.message);
+            }
+        }
+
+        async function deleteProduct() {
+            const id = document.getElementById('deleteId').value;
+            if (!id) {
+                alert('Please enter Product ID');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                displayResponse('deleteResponse', data, response.ok);
+            } catch (error) {
+                displayError('deleteResponse', error.message);
+            }
+        }
+
+        function displayResponse(elementId, data, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = 'response ' + (isSuccess ? 'success' : 'error');
+        }
+
+        function displayError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = 'Error: ' + message;
+            element.className = 'response error';
+        }
+    </script>
+</body>
+</html>
